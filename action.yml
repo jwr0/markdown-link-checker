@@ -1,0 +1,39 @@
+name: "Markdown Link Checker"
+description: "Checks all hyperlinks in Markdown files for broken links and reports their status"
+author: "HarryVasanth"
+branding:
+  icon: "link"
+  color: "blue"
+inputs:
+  path:
+    description: "Path to check for markdown files"
+    required: false
+    default: "."
+  files:
+    description: "Specific markdown files to check (comma-separated)"
+    required: false
+  exclude:
+    description: "Files or directories to exclude (comma-separated)"
+    required: false
+  recursive:
+    description: "Check files recursively"
+    required: false
+    default: "true"
+  timeout:
+    description: "Timeout for HTTP requests in seconds"
+    required: false
+    default: "10"
+  retry-count:
+    description: "Number of retries for failed requests"
+    required: false
+    default: "3"
+  verbose:
+    description: "Show detailed output"
+    required: false
+    default: "false"
+  config-file:
+    description: "Path to configuration file"
+    required: false
+runs:
+  using: "docker"
+  image: "Dockerfile"
