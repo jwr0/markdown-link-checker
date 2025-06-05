@@ -197,16 +197,17 @@ FIND_CMD="$FIND_CMD -type f -name \"*.md\""
 
 # Add exclude patterns
 if [ -n "$EXCLUDE" ]; then
-    IFS=',' read -ra EXCLUDE_ARRAY <<<"$EXCLUDE"
-    for pattern in "${EXCLUDE_ARRAY[@]}"; do
+    # Normalize: replace commas with spaces, then iterate
+    EXCLUDE_NORMALIZED=$(echo "$EXCLUDE" | tr ',' ' ')
+    for pattern in $EXCLUDE_NORMALIZED; do
         FIND_CMD="$FIND_CMD -not -path \"*$pattern*\""
     done
 fi
 
 # Get list of files to check
 if [ -n "$FILES" ]; then
-    IFS=',' read -ra FILES_ARRAY <<<"$FILES"
-    for file in "${FILES_ARRAY[@]}"; do
+    FILES_NORMALIZED=$(echo "$FILES" | tr ',' ' ')
+    for file in $FILES_NORMALIZED; do
         if [ -f "$file" ]; then
             check_file "$file"
         else

@@ -58,26 +58,50 @@ jobs:
         uses: harryvasanth/markdown-link-checker@v1
         with:
           path: "docs"
-          files: "README.md,CONTRIBUTING.md"
-          exclude: "node_modules,vendor"
+          files: "README.md CONTRIBUTING.md" # space-separated
+          exclude: "node_modules vendor" # space-separated
           recursive: "true"
           timeout: "15"
           retry-count: "3"
           verbose: "true"
 ```
 
+You can also use commas, or mix commas and spaces, for `files` and `exclude`:
+
+```yml
+with:
+  files: "README.md,CONTRIBUTING.md"
+  exclude: "node_modules,vendor"
+```
+
+or even
+
+```yml
+with:
+  files: "README.md, CONTRIBUTING.md docs/guide.md"
+  exclude: "node_modules, vendor dist"
+```
+
 ## Inputs
 
-| Input         | Description                                        | Required | Default |
-| ------------- | -------------------------------------------------- | -------- | ------- |
-| `path`        | Path to check for markdown files                   | No       | `.`     |
-| `files`       | Specific markdown files to check (comma-separated) | No       |         |
-| `exclude`     | Files or directories to exclude (comma-separated)  | No       |         |
-| `recursive`   | Check files recursively                            | No       | `true`  |
-| `timeout`     | Timeout for HTTP requests in seconds               | No       | `10`    |
-| `retry-count` | Number of retries for failed requests              | No       | `3`     |
-| `verbose`     | Show detailed output                               | No       | `false` |
-| `config-file` | Path to configuration file                         | No       |         |
+| Input         | Description                                                            | Required | Default |
+| ------------- | ---------------------------------------------------------------------- | -------- | ------- |
+| `path`        | Path to check for markdown files                                       | No       | `.`     |
+| `files`       | Specific markdown files to check (comma, space, or both as separators) | No       |         |
+| `exclude`     | Files or directories to exclude (comma, space, or both as separators)  | No       |         |
+| `recursive`   | Check files recursively                                                | No       | `true`  |
+| `timeout`     | Timeout for HTTP requests in seconds                                   | No       | `10`    |
+| `retry-count` | Number of retries for failed requests                                  | No       | `3`     |
+| `verbose`     | Show detailed output                                                   | No       | `false` |
+| `config-file` | Path to configuration file                                             | No       |         |
+
+> **Note:**  
+> For `files` and `exclude`, you can use spaces, commas, or both to separate entries.  
+> Examples:
+>
+> - `files: "README.md CONTRIBUTING.md"`
+> - `files: "README.md,CONTRIBUTING.md"`
+> - `files: "README.md, CONTRIBUTING.md docs/guide.md"`
 
 ## Configuration File
 
@@ -87,7 +111,7 @@ You can use a configuration file to set options for the link checker. Create a f
 # Link Checker Configuration
 
 PATH_TO_CHECK="docs"
-EXCLUDE="node_modules,vendor"
+EXCLUDE="node_modules vendor"
 TIMEOUT=15
 RETRY_COUNT=3
 VERBOSE=true
@@ -107,7 +131,6 @@ Then reference it in your workflow:
 The action will output information about the links it checks and any broken links it finds:
 
 ```console
-
 === Markdown Link Checker ===
 Starting link check process...
 Checking links in README.md
@@ -120,5 +143,4 @@ Found 10 links in docs/guide.md
 Files checked: 2
 Total links: 25
 ✖ Found 2 broken links!
-
 ```
