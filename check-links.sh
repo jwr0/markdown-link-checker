@@ -135,10 +135,13 @@ check_file() {
     echo -e "${BLUE}Checking links in $file${NC}"
     CHECKED_FILES=$((CHECKED_FILES + 1))
 
-    # Extract markdown links [text](url)
+    # Extract markdown links [text](url) and [text](<url>)
     while IFS= read -r line_data; do
         line_num=$(echo "$line_data" | cut -d':' -f1)
         link=$(echo "$line_data" | cut -d':' -f2-)
+
+        # Remove surrounding angle brackets if present
+        link=$(echo "$link" | sed -E 's/^<(.+)>$/\1/')
 
         # Skip empty links
         if [ -z "$link" ]; then
@@ -149,7 +152,11 @@ check_file() {
         TOTAL_LINKS=$((TOTAL_LINKS + 1))
 
         check_url "$link" "$file" "$line_num"
-    done < <(grep -n -o '\[.*\]([^)]*)' "$file" | sed -E 's/([0-9]+):\[.*\]\((.*)\)/\1:\2/g')
+    done < <(perl -ne '
+        while (/\[([^\]]+)\]\(\s*(<)?((?:[^()<>]|<[^<>]*>|\([^()]*\))*)(?(2)>)\s*\)/g) {
+            print "$.:$3\n";
+        }
+    ' "$file")
 
     # Extract HTML links <a href="url">
     while IFS= read -r line_data; do
@@ -172,6 +179,9 @@ check_file() {
         line_num=$(echo "$line_data" | cut -d':' -f1)
         link=$(echo "$line_data" | cut -d':' -f2-)
 
+        # Remove surrounding angle brackets if present
+        link=$(echo "$link" | sed -E 's/^<(.+)>$/\1/')
+
         # Skip empty links
         if [ -z "$link" ]; then
             continue
@@ -181,7 +191,11 @@ check_file() {
         TOTAL_LINKS=$((TOTAL_LINKS + 1))
 
         check_url "$link" "$file" "$line_num"
-    done < <(grep -n -o '!\[.*\]([^)]*)' "$file" | sed -E 's/([0-9]+):!\[.*\]\((.*)\)/\1:\2/g')
+    done < <(perl -ne '
+        while (/!\[[^\]]*\]\(\s*(<)?((?:[^()<>]|<[^<>]*>|\([^()]*\))*)(?(1)>)\s*\)/g) {
+            print "$.:$2\n";
+        }
+    ' "$file")
 
     echo -e "${BLUE}Found $links_found links in $file${NC}"
 }
