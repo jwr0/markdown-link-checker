@@ -275,7 +275,7 @@ fi
 
 # Echo the JSON list of broken links to the GitHub output
 if [ -n "$GITHUB_OUTPUT" ]; then
-    echo "json=$(cat "$FILE_LIST")" >> "$GITHUB_OUTPUT"
+    echo "json=$(cat "$FILE_LIST" | jq -c .)" >> "$GITHUB_OUTPUT"
 fi
 
 # Print summary
