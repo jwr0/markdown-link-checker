@@ -35,6 +35,7 @@ jobs:
         run: |
           set -x
           echo "${{ steps.broken-markdown-files.outputs.json }}" > /tmp/file_list.json
+          cat /tmp/file_list.json
           for item in $(cat /tmp/file_list.json | jq '.[] | @base64')
           do
             LINK="$(echo "$item" | base64 --decode | jq -r .link)"
