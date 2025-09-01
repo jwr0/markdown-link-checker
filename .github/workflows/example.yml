@@ -34,7 +34,7 @@ jobs:
         if: ${{ failure() }}
         run: |
           set -x
-          echo "${{ steps.broken-markdown-files.outputs.json }}" > /tmp/file_list.json
+          echo '${{ steps.broken-markdown-files.outputs.json }}' > /tmp/file_list.json
           cat /tmp/file_list.json
           for item in $(cat /tmp/file_list.json | jq '.[] | @base64')
           do
