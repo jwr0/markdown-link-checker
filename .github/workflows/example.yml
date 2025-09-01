@@ -36,14 +36,14 @@ jobs:
           set -x
           echo '${{ steps.broken-markdown-files.outputs.json }}' > /tmp/file_list.json
           cat /tmp/file_list.json
-          for item in $(cat /tmp/file_list.json | jq '.[] | @base64')
+          for item in $(cat /tmp/file_list.json | jq -r '.[] | @base64')
           do
             LINK="$(echo "$item" | base64 --decode | jq -r .link)"
             FILE="$(echo "$item" | base64 --decode | jq -r .file)"
             LINE_NUM="$(echo "$item" | base64 --decode | jq -r .line_num)"
 
             gh api \
-              -method POST \
+              --method POST \
               -H "Accept: application/vnd.github+json" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
               /repos/${{ github.repository }}/pulls/${{ github.event.number }}/comments \
