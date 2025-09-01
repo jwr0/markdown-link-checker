@@ -31,6 +31,7 @@ jobs:
           retry-count: "1"
 
       - name: Comment on PR in case of broken links
+        if: ${{ failure() }}
         run: |
           set -x
           echo "${{ steps.broken-markdown-files.outputs.json }}" > /tmp/file_list.json
