@@ -2,6 +2,8 @@
 
 This GitHub action checks all hyperlinks in Markdown files for broken links and reports their status. It's designed to be lightweight, fast, and compatible across different environments.
 
+This line contains a [broken link](https://example.com/broken.html)
+
 ## Features
 
 - Checks external URLs and reports HTTP status codes
