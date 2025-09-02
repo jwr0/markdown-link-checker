@@ -253,7 +253,8 @@ if [ -n "$EXCLUDE" ]; then
     done
 fi
 
-FILE_LIST=/tmp/file_list.json
+FILE_LIST=$(mktemp /tmp/file_list.XXXXXX.json)
+trap 'rm -f "$FILE_LIST"' EXIT
 echo '[]' > "$FILE_LIST"
 
 # Get list of files to check
