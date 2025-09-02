@@ -112,7 +112,20 @@ check_url() {
 
         # Check fragment if exists
         if [ -n "$fragment" ] && [[ $target_path == *.md ]]; then
-            if ! grep -q "^#\+ ${fragment}\s*$\|^#\+ .*<a.*id=['\"]${fragment}['\"].*>\|id=['\"]${fragment}['\"]" "$target_path"; then
+            # Normalize fragment: lowercase, replace non-alphanumeric characters with space, trim whitespace
+            fragment_normalized=$(echo "$fragment" | awk '{print tolower($0)}' | sed -E 's/[^a-z0-9]+/ /g' | xargs)
+            found_fragment=false
+            while IFS= read -r heading; do
+                # Remove '#' and leading/trailing spaces from heading, normalize as above
+                heading_fragment=$(echo "$heading" | sed -E 's/^#+\\s*//')
+                heading_normalized=$(echo "$heading_fragment" | awk '{print tolower($0)}' | sed -E 's/[^a-z0-9]+/ /g' | xargs)
+                if [ "$heading_normalized" = "$fragment_normalized" ]; then
+                    found_fragment=true
+                    break
+                fi
+            done < <(grep -E '^#+ ' "$target_path")
+
+            if ! $found_fragment; then
                 echo -e "${RED}✖ $file:$line - Broken link: $url#$fragment (Fragment not found in $target_path)${NC}"
                 BROKEN_LINKS=$((BROKEN_LINKS + 1))
                 return 1
