@@ -1,3 +1,9 @@
+# This workflow will run on PR's only when those PR's have changes to
+# markdown files. The workflow will check for any broken links in those
+# markdown files. If any broken links are found, this will comment
+# on the PR. If no markdown files have changes or if no broken links
+# are found, this will silently exit 0.
+
 name: Check markdown files for broken links
 on:
   pull_request:
@@ -9,7 +15,7 @@ on:
       - main
 
 jobs:
-  build:
+  pr_markdown_link_checker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -23,8 +29,9 @@ jobs:
             **.md
 
       - name: Check Markdown Links
+        if: ${{ steps.changed-markdown-files.outputs.any_changed == 'true' }}
         id: broken-markdown-files
-        uses: jwr0/markdown-link-checker@add-json-output
+        uses: HarryVasanth/markdown-link-checker@v1.4
         with:
           files: ${{ steps.changed-markdown-files.outputs.all_changed_files }}
           timeout: "5"
