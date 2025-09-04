@@ -13,6 +13,8 @@ on:
       - reopened
     branches:
       - main
+    paths:
+      - '**.md'
 
 jobs:
   pr_markdown_link_checker:
