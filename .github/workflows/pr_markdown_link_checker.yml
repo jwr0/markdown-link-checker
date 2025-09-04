@@ -1,3 +1,9 @@
+# This workflow will run on PR's only when those PR's have changes to
+# markdown files. The workflow will check for any broken links in those
+# markdown files. If any broken links are found, this will comment
+# on the PR. If no markdown files have changes or if no broken links
+# are found, this will silently exit 0.
+
 name: Check markdown files for broken links
 on:
   pull_request:
@@ -7,9 +13,11 @@ on:
       - reopened
     branches:
       - main
+    paths:
+      - '**.md'
 
 jobs:
-  build:
+  pr_markdown_link_checker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -23,25 +31,28 @@ jobs:
             **.md
 
       - name: Check Markdown Links
+        if: ${{ steps.changed-markdown-files.outputs.any_changed == 'true' }}
         id: broken-markdown-files
-        uses: jwr0/markdown-link-checker@add-json-output
+        uses: HarryVasanth/markdown-link-checker@v1.4
         with:
           files: ${{ steps.changed-markdown-files.outputs.all_changed_files }}
           timeout: "5"
           retry-count: "1"
 
       - name: Comment on PR in case of broken links
+        if: ${{ failure() }}
         run: |
           set -x
-          echo "${{ steps.broken-markdown-files.outputs.json }}" > /tmp/file_list.json
-          for item in $(cat /tmp/file_list.json | jq '.[] | @base64')
+          echo '${{ steps.broken-markdown-files.outputs.json }}' > /tmp/file_list.json
+          cat /tmp/file_list.json
+          for item in $(cat /tmp/file_list.json | jq -r '.[] | @base64')
           do
             LINK="$(echo "$item" | base64 --decode | jq -r .link)"
             FILE="$(echo "$item" | base64 --decode | jq -r .file)"
             LINE_NUM="$(echo "$item" | base64 --decode | jq -r .line_num)"
 
             gh api \
-              -method POST \
+              --method POST \
               -H "Accept: application/vnd.github+json" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
               /repos/${{ github.repository }}/pulls/${{ github.event.number }}/comments \
